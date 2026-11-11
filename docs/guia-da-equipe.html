@@ -1,0 +1,296 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>AprovaTrato: guia da equipe</title><style>
+@font-face{font-family:"Dewi";font-weight:400;src:url("file:///Users/trato/Documents/portal-aprovacao-trato/src/fonts/RFDewi-Regular.woff2")}
+@font-face{font-family:"Dewi";font-weight:600;src:url("file:///Users/trato/Documents/portal-aprovacao-trato/src/fonts/RFDewi-Semibold.woff2")}
+@font-face{font-family:"Dewi";font-weight:700;src:url("file:///Users/trato/Documents/portal-aprovacao-trato/src/fonts/RFDewi-Bold.woff2")}
+@font-face{font-family:"DewiExp";font-weight:900;src:url("file:///Users/trato/Documents/portal-aprovacao-trato/src/fonts/RFDewiExpanded-Black.woff2")}
+@page{size:A4;margin:16mm 15mm 18mm}
+*{box-sizing:border-box}
+body{font-family:"Dewi",Helvetica,Arial,sans-serif;color:#212322;font-size:10.5pt;line-height:1.5;margin:0}
+.capa{border-bottom:1px solid #e5e5e5;padding-bottom:12px;margin-bottom:18px}
+.marca{font-family:"DewiExp",Helvetica,sans-serif;font-weight:900;color:#0040f0;font-size:20pt;letter-spacing:.01em}
+.marca sup{font-size:.4em}
+h1.titulo{font-size:22pt;font-weight:600;text-transform:uppercase;margin:10px 0 0;line-height:1.1}
+h2{font-size:14pt;font-weight:600;text-transform:uppercase;margin:24px 0 8px;padding-top:10px;border-top:1px solid #e5e5e5;break-after:avoid}
+h3{font-size:11.5pt;font-weight:700;margin:16px 0 4px;break-after:avoid}
+p{margin:6px 0}
+ul,ol{margin:6px 0;padding-left:20px}
+li{margin:3px 0}
+strong{font-weight:700}
+a{color:#0040f0;text-decoration:none}
+code{font-family:Menlo,monospace;font-size:9pt;background:#f2f1ec;padding:1px 5px;border-radius:4px}
+hr{border:0;border-top:1px solid #e5e5e5;margin:14px 0}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:9.3pt;break-inside:auto}
+tr{break-inside:avoid}
+th{background:#f2f1ec;text-align:left;font-weight:600;padding:6px 8px;border:1px solid #e5e5e5}
+td{padding:6px 8px;border:1px solid #e5e5e5;vertical-align:top}
+blockquote{margin:8px 0;padding:6px 12px;background:#f2f1ec;border-radius:6px}
+</style></head><body>
+<div class="capa"><div class="marca">TRATO<sup>®</sup></div><h1 class="titulo">AprovaTrato: guia da equipe</h1></div>
+<p>Este guia explica como o portal de aprovação funciona, o que cada pessoa da Trato precisa fazer no ClickUp e o que mudou no processo.</p>
+<p><strong>Endereço do portal:</strong> <a href="https://aprovetrato.netlify.app">https://aprovetrato.netlify.app</a></p>
+<p><strong>Página da equipe (com senha):</strong> <a href="https://aprovetrato.netlify.app/admin">https://aprovetrato.netlify.app/admin</a></p>
+<h2>1. O fluxo, passo a passo</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Quem</th>
+<th>O que faz</th>
+<th>Status no ClickUp</th>
+<th>O cliente vê?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Social</td>
+<td>Cria a task na lista do cliente e marca o designer como responsável</td>
+<td>CRIAR LAYOUT (ou o que já usamos)</td>
+<td>Não</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Designer</td>
+<td>Faz o layout, comenta com o link do Dropbox e devolve a task para a social</td>
+<td><strong>EM APROVAÇÃO (CLIENTE)</strong></td>
+<td><strong>Não</strong> (ainda não tem <code>#arte</code>)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Social</td>
+<td>Faz a aprovação interna. Se estiver ruim, devolve ao designer</td>
+<td>AJUSTE ou CRIAR LAYOUT</td>
+<td>Não</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Social</td>
+<td>Estando aprovado internamente, baixa o layout e sobe na task, num comentário com <strong><code>#arte</code></strong></td>
+<td>EM APROVAÇÃO (CLIENTE)</td>
+<td><strong>Sim</strong>, como &quot;Aguardando&quot;</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Cliente</td>
+<td>Aprova ou pede ajuste no portal</td>
+<td>APROVADO ou AJUSTE</td>
+<td>Sim</td>
+</tr>
+<tr>
+<td>6a</td>
+<td>Social</td>
+<td>Se aprovado: agenda e publica</td>
+<td>APROVADO, depois PUBLICADO</td>
+<td>Aparece como &quot;Aprovado&quot;, depois &quot;No ar&quot;</td>
+</tr>
+<tr>
+<td>6b</td>
+<td>Designer</td>
+<td>Se pediu ajuste: a task volta sozinha para ele (veja a seção 5)</td>
+<td>AJUSTE</td>
+<td>O cliente vê &quot;Em ajuste&quot;</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Designer</td>
+<td>Ajusta e devolve à social com o novo link do Dropbox</td>
+<td>EM APROVAÇÃO (CLIENTE)</td>
+<td>Continua &quot;Em ajuste&quot; até a social subir a arte nova</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Social</td>
+<td>Aprova internamente e sobe um <strong>novo comentário <code>#arte</code></strong></td>
+<td>EM APROVAÇÃO (CLIENTE)</td>
+<td>Volta para &quot;Aguardando&quot;</td>
+</tr>
+</tbody></table>
+<p><strong>A regra mais importante:</strong> o status EM APROVAÇÃO (CLIENTE) sozinho <strong>não</strong> mostra nada ao cliente. O post só aparece quando existe um comentário com <code>#arte</code> e a imagem anexada. Foi isso que separou a aprovação interna da aprovação do cliente.</p>
+<h2>2. O que toda task precisa ter (checklist da social)</h2>
+<p>Antes de subir a arte, confira:</p>
+<ol>
+<li><strong>Está na lista do cliente</strong>, dentro da pasta Social Media.</li>
+<li><strong>Data de publicação</strong> preenchida (campo da task). É ela que define em qual mês o post aparece e a data que o cliente vê. A data de vencimento da task continua sendo o prazo interno e <strong>não</strong> aparece no portal.</li>
+<li><strong>Nome da task</strong> no formato <code>Formato | Título</code>. Exemplos: <code>Carrossel | Melhorias AABB</code>, <code>Estático | Última semana</code>, <code>Reels | Antes de comprar</code>. O portal reconhece Carrossel, Estático, Reels, Story, Vídeo e Motion, e mostra o título sem o prefixo.<ul>
+<li>Se quiser indicar a editoria, use <code>Formato | Editoria | Título</code> (por exemplo <code>Carrossel | Gestão | Distrato</code>) ou coloque uma tag com o nome da editoria (a tag <code>instagram</code> e outras redes são ignoradas).</li>
+</ul>
+</li>
+<li><strong>Legenda na descrição</strong>, depois da palavra <code>LEGENDA:</code>. Tudo que vem depois dela, inclusive as hashtags, vira a legenda que o cliente copia.</li>
+<li><strong>Comentário com a arte</strong>, conforme o tipo (seção 3).</li>
+<li><strong>Status</strong> EM APROVAÇÃO (CLIENTE).</li>
+</ol>
+<h2>3. Como subir a arte</h2>
+<p>Escreva o marcador no comentário e anexe os arquivos. O marcador pode ficar em qualquer lugar do comentário. O ClickUp coloca o nome do arquivo antes do texto, e isso não atrapalha.</p>
+<h3>Estático (uma imagem)</h3>
+<p>Comentário com <code>#arte</code> e a imagem anexada.</p>
+<h3>Carrossel</h3>
+<p>Comentário com <code>#arte</code> e <strong>todas as imagens no mesmo comentário</strong>. A ordem dos slides vem do <strong>número no fim do nome do arquivo</strong>:</p>
+<ul>
+<li><code>Melhorias-1.png</code>, <code>Melhorias-2.png</code>, <code>Melhorias-3.png</code></li>
+<li><code>slide (1).png</code>, <code>slide (2).png</code></li>
+<li><code>01_capa.png</code>, <code>02_meio.png</code>, <code>03_final.png</code></li>
+</ul>
+<p>Numere <strong>todos</strong> os arquivos. Se um arquivo ficar sem número, ou dois tiverem o mesmo número, o portal mantém a ordem em que o ClickUp mostrou, sem tentar adivinhar. O slide de menor número é a capa do post na grade.</p>
+<h3>Reels</h3>
+<p>Comentário com <strong><code>#reel</code></strong>, o <strong>vídeo</strong> e a <strong>imagem da capa</strong>, tudo no mesmo comentário.</p>
+<ul>
+<li>O vídeo toca no portal com a capa na abertura.</li>
+<li>A capa aparece na grade, com um ▶.</li>
+<li>O <code>#reel</code> já marca o post como Reels, mesmo que o título não diga.</li>
+<li>Use MP4. Vídeos <code>.mov</code> de iPhone ou arquivos muito pesados podem dar problema em alguns celulares.</li>
+</ul>
+<h3>Trocar a arte</h3>
+<p>Postou errado ou o cliente pediu ajuste? Comente de novo com <code>#arte</code> (ou <code>#reel</code>). <strong>Vale sempre o último comentário.</strong> O comentário só vale se tiver imagem ou vídeo anexado. Esquecer de anexar não publica nada.</p>
+<h3>Falar com o cliente pelo portal</h3>
+<p>Comente na task escrevendo <code>#cliente</code>. O texto aparece na &quot;Conversa sobre este post&quot; como &quot;Equipe Trato&quot; (a marcação some do texto). <strong>Comentário sem <code>#cliente</code> é interno e o cliente nunca vê.</strong></p>
+<h2>4. O que o cliente vê, por status</h2>
+<table>
+<thead>
+<tr>
+<th>Status no ClickUp</th>
+<th>O que o cliente vê</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>STAND-BY, GRAVAR, CRIAR COPY, EDITAR VÍDEO, CRIAR LAYOUT</td>
+<td>Nada</td>
+</tr>
+<tr>
+<td>EM APROVAÇÃO (CLIENTE) <strong>com <code>#arte</code></strong></td>
+<td>&quot;Aguardando&quot;, com os botões Aprovar e Pedir ajuste</td>
+</tr>
+<tr>
+<td>EM APROVAÇÃO (CLIENTE) <strong>sem <code>#arte</code></strong></td>
+<td>Nada</td>
+</tr>
+<tr>
+<td>EM APROVAÇÃO (CLIENTE), mas a última arte é <strong>mais antiga</strong> que o último pedido de ajuste dele</td>
+<td>&quot;Em ajuste&quot; (a arte velha não pode ser aprovada por engano)</td>
+</tr>
+<tr>
+<td>AJUSTE (com <code>#arte</code> anterior)</td>
+<td>&quot;Em ajuste&quot;</td>
+</tr>
+<tr>
+<td>APROVADO</td>
+<td>&quot;Aprovado&quot;, sem botões</td>
+</tr>
+<tr>
+<td>PUBLICADO, FINALIZADO</td>
+<td>&quot;No ar&quot;, esmaecido, na parte de baixo da grade (até 9, os mais recentes)</td>
+</tr>
+<tr>
+<td>Qualquer status, <strong>sem Data de publicação</strong></td>
+<td>Nada</td>
+</tr>
+<tr>
+<td>Qualquer post de <strong>outro mês</strong></td>
+<td>Só aparece quando o cliente troca de mês</td>
+</tr>
+</tbody></table>
+<p>Por isso, se um post &quot;não aparece&quot;, quase sempre falta o <code>#arte</code>, a data de publicação, ou o status está em outra etapa.</p>
+<h2>5. O que acontece quando o cliente age</h2>
+<p><strong>Aprovar</strong></p>
+<ul>
+<li>O status vai para <strong>APROVADO</strong>.</li>
+<li>No celular ou no computador, a tela muda na hora.</li>
+</ul>
+<p><strong>Aprovar os X pendentes</strong></p>
+<ul>
+<li>Pede uma confirmação e aprova de uma vez o que está aguardando naquele mês.</li>
+</ul>
+<p><strong>Pedir ajuste</strong></p>
+<ul>
+<li>O cliente marca <strong>Arte</strong>, <strong>Legenda</strong> e/ou <strong>Data</strong> e escreve o comentário (obrigatório).</li>
+<li>Na task aparece o comentário: <code>Comentário do cliente via portal · Ajuste em: Arte, Legenda</code>, seguido do texto dele.</li>
+<li>O status vai para <strong>AJUSTE</strong>.</li>
+<li><strong>A task volta para o designer sozinha:</strong> o designer vira o responsável e a social sai. Os dois são marcados (@) no comentário, então os dois recebem a notificação.</li>
+<li>O portal descobre quem é o designer pelo <strong>último comentário na task entre os designers cadastrados</strong> (hoje, Higor e Luiz). Por isso, <strong>o designer precisa deixar um comentário</strong> (o link do Dropbox) quando devolve a task. Se ninguém dessa lista comentou, o portal só marca os responsáveis atuais e <strong>não troca o responsável</strong>.</li>
+</ul>
+<p><strong>Comentar</strong></p>
+<ul>
+<li>O comentário entra na task como <code>Comentário do cliente via portal</code>, sem mudar o status.</li>
+</ul>
+<h2>6. O que mudou no jeito de trabalhar</h2>
+<table>
+<thead>
+<tr>
+<th>Antes</th>
+<th>Agora</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>EM APROVAÇÃO (CLIENTE) significava &quot;pronto para o cliente&quot;</td>
+<td>Significa &quot;volta para a social revisar&quot;. O cliente só enxerga quando existe <code>#arte</code></td>
+</tr>
+<tr>
+<td>A arte ia por link do Figma ou do Dropbox</td>
+<td>A arte vai <strong>anexada num comentário</strong> com <code>#arte</code> (o link do Dropbox continua para o designer entregar à social)</td>
+</tr>
+<tr>
+<td>Formato e tema ficavam só no título</td>
+<td>Formato vem do início do título (<code>Carrossel |</code>, <code>Reels |</code>...). A editoria vem de tag ou do título</td>
+</tr>
+<tr>
+<td>Data de vencimento servia para tudo</td>
+<td><strong>Data de publicação</strong> (campo) manda no portal. A de vencimento é só prazo interno</td>
+</tr>
+<tr>
+<td>Aprovação por WhatsApp, e-mail ou PDF</td>
+<td>O cliente aprova direto no portal, e o ClickUp se atualiza sozinho</td>
+</tr>
+<tr>
+<td>A social passava o ajuste ao designer à mão</td>
+<td>A task volta sozinha para o designer, com os dois marcados</td>
+</tr>
+<tr>
+<td>Legenda em qualquer lugar da descrição</td>
+<td>Legenda depois de <code>LEGENDA:</code></td>
+</tr>
+</tbody></table>
+<p><strong>Novas convenções de comentário:</strong> <code>#arte</code> (arte final), <code>#reel</code> (vídeo e capa), <code>#cliente</code> (mensagem para o cliente).</p>
+<h2>7. Quem faz o quê</h2>
+<ul>
+<li><strong>Social (Eduarda, Alexia):</strong> cria a task, define data de publicação e legenda, faz a aprovação interna, sobe <code>#arte</code> ou <code>#reel</code>, comenta com <code>#cliente</code> quando precisa falar com o cliente, e agenda depois do APROVADO.</li>
+<li><strong>Designer (Higor, Luiz):</strong> faz o layout, comenta com o link do Dropbox, devolve a task para a social e, quando o cliente pede ajuste, refaz e devolve de novo.</li>
+<li><strong>Chefes (Emilie, João Pedro):</strong> acompanham e podem entrar em qualquer task. Acesso à página <code>/admin</code>.</li>
+</ul>
+<h2>8. Página da equipe (/admin)</h2>
+<ul>
+<li>Endereço: <a href="https://aprovetrato.netlify.app/admin">https://aprovetrato.netlify.app/admin</a></li>
+<li>Pede a senha da equipe e lista o portal de cada cliente, com <strong>Abrir portal</strong> (para ver como o cliente vê) e <strong>Copiar link</strong> (para enviar).</li>
+<li><strong>Não coloque esse endereço em nenhuma página e não envie a clientes.</strong> Se a senha vazar, peça a troca.</li>
+</ul>
+<h2>9. Como o cliente instala como aplicativo</h2>
+<p>No celular, o portal mostra uma faixa <strong>Instalar</strong>.</p>
+<ul>
+<li><strong>Android (Chrome):</strong> toque em Instalar e confirme.</li>
+<li><strong>iPhone (Safari):</strong> toque em Compartilhar e depois em Adicionar à Tela de Início. Dentro do Instagram ou do WhatsApp isso não funciona: abra o link no Safari.</li>
+<li>O ícone se chama <strong>AprovaTrato</strong> e usa a logo do cliente.</li>
+</ul>
+<p>Dica de mensagem para enviar o link: &quot;Oi! Aqui está o link para você aprovar os posts do mês: [link]. Abra no celular e, se quiser, instale na tela inicial pelo botão Instalar.&quot;</p>
+<h2>10. Quanto tempo leva para aparecer</h2>
+<ul>
+<li>Mudanças feitas <strong>dentro do portal</strong> (aprovar, ajustar, comentar) aparecem na hora.</li>
+<li>Mudanças feitas <strong>no ClickUp</strong> (subir <code>#arte</code>, mudar status) aparecem em alguns segundos, porque o ClickUp avisa o portal automaticamente. Se não aparecer, espere até 1 ou 2 minutos e recarregue.</li>
+</ul>
+<h2>11. Se algo não aparece, confira nesta ordem</h2>
+<ol>
+<li>O status é EM APROVAÇÃO (CLIENTE), APROVADO ou AJUSTE?</li>
+<li>A <strong>Data de publicação</strong> está preenchida, e o cliente está olhando o mês certo (setas ao lado do mês)?</li>
+<li>Existe comentário com <code>#arte</code> (ou <code>#reel</code>) <strong>com imagem ou vídeo anexado</strong>?</li>
+<li>A task está na lista <strong>do cliente certo</strong>?</li>
+<li>Se o cliente pediu ajuste e a arte nova já foi subida: o <code>#arte</code> novo veio <strong>depois</strong> do pedido de ajuste?</li>
+<li>A legenda está depois de <code>LEGENDA:</code>?</li>
+</ol>
+<p>Se mesmo assim não aparecer, avise quem cuida do portal.</p>
+<h2>12. Avisos importantes</h2>
+<ul>
+<li><strong>Os comentários e as mudanças de status feitos pelo portal aparecem no ClickUp com o nome da Emilie</strong>, porque o portal usa o acesso dela. O texto do comentário deixa claro que veio do cliente. Se a Emilie for a responsável de uma task, ela pode não receber a notificação do pedido de ajuste (o ClickUp não avisa a pessoa sobre a própria ação).</li>
+<li><strong>O token do ClickUp é como uma senha.</strong> Não envie por e-mail, WhatsApp ou chat. Se vazar, apague no ClickUp (isso desliga o portal) e crie outro.</li>
+<li>O endereço atual tem &quot;netlify&quot; no nome. Se quiserem um endereço da Trato, como <code>aprovacao.trato.com.br</code>, é só criar um registro no DNS (peça ajuda).</li>
+<li>O plano gratuito da Netlify tem limite mensal de uso e mostra o selo &quot;Powered by Netlify&quot; no canto. Para 9 clientes deve sobrar, mas vale acompanhar.</li>
+<li><strong>Cliente novo ou designer novo:</strong> peça para cadastrar. O cliente precisa da lista do ClickUp, da logo e de um link novo. O designer precisa do nome e do id do ClickUp.</li>
+<li>O log de cada ação (data, hora, cliente, post, ação, tipo de ajuste) fica nos registros da Netlify. Para guardar num banco gratuito, é preciso criar uma conta no Upstash.</li>
+</ul>
+
+</body></html>

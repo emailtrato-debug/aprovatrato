@@ -1,0 +1,7 @@
+[build]
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Evita o aviso de telemetria do Next nos logs de build
+  NEXT_TELEMETRY_DISABLED = "1"
