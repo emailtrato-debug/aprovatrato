@@ -7,8 +7,7 @@
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
   "observability": { "enabled": true },
   "kv_namespaces": [
-    // Troque o id pelo gerado em: npx wrangler kv namespace create NEXT_INC_CACHE_KV
-    { "binding": "NEXT_INC_CACHE_KV", "id": "COLE_O_ID_AQUI" },
-    { "binding": "NEXT_TAG_CACHE_KV", "id": "COLE_O_ID_AQUI" }
+    { "binding": "NEXT_INC_CACHE_KV", "id": "e14f5828a33f4353884aa1b0f03606f6" },
+    { "binding": "NEXT_TAG_CACHE_KV", "id": "91d73429c81e4d78b76dbeb43ad2b6f0" }
   ]
 }
