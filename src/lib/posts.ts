@@ -2,6 +2,7 @@ import "server-only";
 import type { Cliente } from "./clients";
 import { listarComentarios, listarTasks, type CuComentario, type CuTask } from "./clickup";
 import { dataISO } from "./datas";
+import { urlDaMidia } from "./midia";
 import { ordenarPorNumero } from "./ordem";
 import type { DadosMes, EstadoPost, Mensagem, Midia, Post } from "./types";
 
@@ -89,8 +90,8 @@ function midiasDoComentario(c: CuComentario): Midia[] {
         nome,
         midia: {
           tipo: video ? "video" : "imagem",
-          url,
-          miniatura: miniatura ?? (video ? null : url),
+          url: urlDaMidia(url),
+          miniatura: urlDaMidia(miniatura ?? (video ? null : url)),
           largura: typeof obj.width === "number" ? obj.width : undefined,
           altura: typeof obj.height === "number" ? obj.height : undefined,
         },
