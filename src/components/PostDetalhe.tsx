@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { dataHora, diaSemanaEData } from "@/lib/datas";
 import type { Midia, Post } from "@/lib/types";
 import type { ClienteResumo } from "@/lib/types";
-import { LogoCirculo, rotuloTipo, Selo, Seta, TituloDuplo } from "./ui";
+import { IconeLink, LogoCirculo, rotuloTipo, Selo, Seta, SetaDiagonal, TituloDuplo } from "./ui";
 
 type Props = {
   post: Post;
@@ -16,6 +16,10 @@ type Props = {
   onIr: (id: string) => void;
   onAprovar: () => void;
   onAjuste: () => void;
+  /** Desfaz a aprovação ou cancela o pedido de ajuste: o post volta para "em aprovação" no ClickUp. */
+  onVoltar: () => void;
+  /** Caminho do link individual deste post ("/c/<cliente>/p/<id>"). Nulo no modo de teste. */
+  caminhoLink: string | null;
   /** Devolve true se o comentário foi enviado (aí a caixa é limpa). */
   onComentar: (texto: string) => Promise<boolean>;
   onAviso: (texto: string) => void;
@@ -88,7 +92,7 @@ function Carrossel({ midias }: { midias: Midia[] }) {
               <button
                 aria-label="Imagem anterior"
                 onClick={() => ir(atual - 1)}
-                className="toque absolute -left-5 top-1/2 hidden -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md md:flex"
+                className="toque absolute -left-5 top-1/2 hidden -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md transition-colors duration-200 hover:bg-brand hover:text-white md:flex"
               >
                 <Seta dir="esq" />
               </button>
@@ -97,7 +101,7 @@ function Carrossel({ midias }: { midias: Midia[] }) {
               <button
                 aria-label="Próxima imagem"
                 onClick={() => ir(atual + 1)}
-                className="toque absolute -right-5 top-1/2 hidden -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md md:flex"
+                className="toque absolute -right-5 top-1/2 hidden -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md transition-colors duration-200 hover:bg-brand hover:text-white md:flex"
               >
                 <Seta dir="dir" />
               </button>
@@ -116,8 +120,9 @@ function Carrossel({ midias }: { midias: Midia[] }) {
   );
 }
 
-export function PostDetalhe({ post, anterior, proximo, posicao, onFechar, onIr, onAprovar, onAjuste, onComentar, onAviso, ocupado, unico }: Props) {
+export function PostDetalhe({ post, anterior, proximo, posicao, onFechar, onIr, onAprovar, onAjuste, onVoltar, caminhoLink, onComentar, onAviso, ocupado, unico }: Props) {
   const [copiado, setCopiado] = useState(false);
+  const [linkCopiado, setLinkCopiado] = useState(false);
   const [comentario, setComentario] = useState("");
   const botaoFechar = useRef<HTMLButtonElement>(null);
   const painel = useRef<HTMLDivElement>(null);
@@ -134,6 +139,7 @@ export function PostDetalhe({ post, anterior, proximo, posicao, onFechar, onIr, 
   useEffect(() => {
     setComentario("");
     setCopiado(false);
+    setLinkCopiado(false);
     painel.current?.scrollTo({ top: 0 });
   }, [post.id]);
 
@@ -160,20 +166,33 @@ export function PostDetalhe({ post, anterior, proximo, posicao, onFechar, onIr, 
     }
   };
 
+  const copiarLink = async () => {
+    if (!caminhoLink) return;
+    const endereco = `${window.location.origin}${caminhoLink}`;
+    try {
+      await navigator.clipboard.writeText(endereco);
+      setLinkCopiado(true);
+      setTimeout(() => setLinkCopiado(false), 2200);
+    } catch {
+      // Navegador sem acesso à área de transferência: mostra o link para copiar na mão.
+      window.prompt("Copie o link deste post:", endereco);
+    }
+  };
+
   const aguardando = post.estado === "aguardando";
   const numero = post.numero ? String(post.numero).padStart(2, "0") : null;
   const rotuloNav = (p: Post | null, fallback: string) => (p?.numero ? `POST ${String(p.numero).padStart(2, "0")}` : fallback);
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center md:p-10 ${unico ? "bg-soft" : "bg-ink/75"}`}
+      className={`fundo-entra fixed inset-0 z-50 flex items-center justify-center md:p-10 ${unico ? "bg-soft" : "bg-ink/75"}`}
       onMouseDown={(e) => !unico && e.target === e.currentTarget && onFechar()}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-label={post.titulo}
-        className="flex h-full w-full flex-col overflow-hidden bg-white md:h-auto md:max-h-[92vh] md:max-w-[1180px] md:rounded-[28px]"
+        className="painel-entra flex h-full w-full flex-col overflow-hidden bg-white md:h-auto md:max-h-[92vh] md:max-w-[1180px] md:rounded-[28px]"
       >
         {/* Barra superior */}
         <div className="flex items-center justify-between border-b border-line px-3 md:px-8">
@@ -183,7 +202,7 @@ export function PostDetalhe({ post, anterior, proximo, posicao, onFechar, onIr, 
               <span className="font-display text-[15px] uppercase leading-none">{unico.nome}</span>
             </div>
           ) : (
-            <button ref={botaoFechar} onClick={onFechar} className="toque rotulo flex items-center gap-2 !text-ink">
+            <button ref={botaoFechar} onClick={onFechar} className="toque rotulo group flex items-center gap-2 !text-ink transition-colors duration-200 hover:!text-brand">
               <Seta dir="fechar" className="hidden md:block" />
               <Seta dir="esq" className="md:hidden" />
               <span className="hidden md:inline">Fechar</span>
@@ -205,19 +224,19 @@ export function PostDetalhe({ post, anterior, proximo, posicao, onFechar, onIr, 
               onClick={() => anterior && onIr(anterior.id)}
               disabled={!anterior}
               aria-label="Post anterior"
-              className="toque rotulo flex items-center justify-center gap-1.5 !text-ink disabled:opacity-30"
+              className="toque rotulo group flex items-center justify-center gap-1.5 !text-ink transition-colors duration-200 hover:!text-brand disabled:opacity-30"
             >
-              <Seta dir="esq" />
+              <Seta dir="esq" className="transition-transform duration-300 group-hover:-translate-x-1" />
               <span className="hidden md:inline">{rotuloNav(anterior, "Anterior")}</span>
             </button>
             <button
               onClick={() => proximo && onIr(proximo.id)}
               disabled={!proximo}
               aria-label="Próximo post"
-              className="toque rotulo flex items-center justify-center gap-1.5 !text-ink disabled:opacity-30"
+              className="toque rotulo group flex items-center justify-center gap-1.5 !text-ink transition-colors duration-200 hover:!text-brand disabled:opacity-30"
             >
               <span className="hidden md:inline">{rotuloNav(proximo, "Próximo")}</span>
-              <Seta dir="dir" />
+              <Seta dir="dir" className="transition-transform duration-300 group-hover:translate-x-1" />
             </button>
           </div>
           )}
@@ -245,13 +264,23 @@ export function PostDetalhe({ post, anterior, proximo, posicao, onFechar, onIr, 
               <span className="text-[14px] text-mute">
                 {post.estado === "no-ar" ? "Foi ao ar" : "Vai ao ar"} {diaSemanaEData(post.dataPublicacao)}
               </span>
+              {caminhoLink && (
+                <button
+                  onClick={copiarLink}
+                  className="toque btn-contorno -my-1 inline-flex items-center gap-1.5 rounded-full border border-ink/25 px-3.5 text-[13px]"
+                  aria-live="polite"
+                >
+                  <IconeLink />
+                  {linkCopiado ? "Link copiado" : "Copiar link do post"}
+                </button>
+              )}
             </div>
 
             {post.legenda && (
               <div className="mt-5 rounded-2xl bg-soft p-5">
                 <div className="flex items-center justify-between">
                   <span className="rotulo">Legenda</span>
-                  <button onClick={copiar} className="toque -my-2 rounded-full border border-ink/70 px-4 text-[13px]">
+                  <button onClick={copiar} className="toque btn-contorno -my-2 rounded-full border border-ink/70 px-4 text-[13px]">
                     {copiado ? "Copiado" : "Copiar"}
                   </button>
                 </div>
@@ -261,15 +290,34 @@ export function PostDetalhe({ post, anterior, proximo, posicao, onFechar, onIr, 
 
             {aguardando ? (
               <div className="mt-5 hidden gap-3 md:flex">
-                <button onClick={onAprovar} disabled={ocupado} className="toque flex-1 rounded-full bg-black px-6 py-3.5 text-[16px] font-semibold text-white disabled:opacity-60">
-                  {ocupado ? "Aprovando…" : "Aprovar post ↗"}
+                <button onClick={onAprovar} disabled={ocupado} className="toque btn-solido grupo inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-black px-6 py-3.5 text-[16px] font-semibold text-white disabled:opacity-60">
+                  {ocupado ? "Aprovando…" : <>Aprovar post <SetaDiagonal /></>}
                 </button>
-                <button onClick={onAjuste} disabled={ocupado} className="toque flex-1 rounded-full border border-ink/70 px-6 py-3.5 text-[16px] disabled:opacity-60">
+                <button onClick={onAjuste} disabled={ocupado} className="toque btn-contorno flex-1 rounded-full border border-ink/70 px-6 py-3.5 text-[16px] disabled:opacity-60">
                   Pedir ajuste
                 </button>
               </div>
             ) : (
-              NOTA[post.estado] && <p className="mt-5 rounded-2xl border border-line px-5 py-4 text-[15px] text-mute">{NOTA[post.estado]}</p>
+              <>
+                {NOTA[post.estado] && <p className="mt-5 rounded-2xl border border-line px-5 py-4 text-[15px] text-mute">{NOTA[post.estado]}</p>}
+                {(post.estado === "aprovado" || post.estado === "ajuste") && (
+                  <div className="mt-3">
+                    <p className="text-[13px] text-mute">
+                      {post.estado === "aprovado" ? "Mudou de ideia? Você pode voltar este post para aprovação ou pedir um ajuste." : "Não precisa mais do ajuste? Volte o post para aprovação."}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-3">
+                      <button onClick={onVoltar} disabled={ocupado} className="toque btn-contorno rounded-full border border-ink/70 px-5 py-2.5 text-[15px] disabled:opacity-60">
+                        {ocupado ? "Voltando…" : post.estado === "aprovado" ? "Voltar para aprovação" : "Cancelar pedido de ajuste"}
+                      </button>
+                      {post.estado === "aprovado" && (
+                        <button onClick={onAjuste} disabled={ocupado} className="toque btn-contorno rounded-full border border-ink/70 px-5 py-2.5 text-[15px] disabled:opacity-60">
+                          Pedir ajuste
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             {post.estado !== "no-ar" && (
@@ -281,7 +329,7 @@ export function PostDetalhe({ post, anterior, proximo, posicao, onFechar, onIr, 
                   onChange={(e) => setComentario(e.target.value)}
                   placeholder="Escreva aqui o que você gostou ou o que precisa mudar"
                   rows={3}
-                  className="mt-2 block w-full resize-y rounded-xl border border-line px-4 py-3 text-[16px] placeholder:text-mute/70"
+                  className="mt-2 block w-full resize-y rounded-xl border border-line px-4 py-3 text-[16px] transition-colors duration-200 placeholder:text-mute/70 hover:border-ink/40 focus:border-brand"
                 />
                 <p className="mt-2 text-[13px] text-mute">Para pedir ajuste, conte o que precisa mudar.</p>
                 <button
@@ -289,9 +337,9 @@ export function PostDetalhe({ post, anterior, proximo, posicao, onFechar, onIr, 
                     if (await onComentar(comentario)) setComentario("");
                   }}
                   disabled={!comentario.trim() || ocupado}
-                  className="toque mt-1 px-1 text-[15px] font-semibold text-brand disabled:opacity-40"
+                  className="toque grupo mt-1 inline-flex items-center gap-1.5 px-1 text-[15px] font-semibold text-brand transition-colors duration-200 hover:text-ink disabled:opacity-40"
                 >
-                  Enviar comentário ↗
+                  Enviar comentário <SetaDiagonal />
                 </button>
               </div>
             )}
@@ -329,11 +377,11 @@ export function PostDetalhe({ post, anterior, proximo, posicao, onFechar, onIr, 
         {/* Celular: botões presos no rodapé */}
         {aguardando && (
           <div className="flex gap-3 border-t border-line bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 md:hidden">
-            <button onClick={onAjuste} disabled={ocupado} className="toque flex-1 rounded-full border border-ink/70 py-3.5 text-[16px] disabled:opacity-60">
+            <button onClick={onAjuste} disabled={ocupado} className="toque btn-contorno flex-1 rounded-full border border-ink/70 py-3.5 text-[16px] disabled:opacity-60">
               Pedir ajuste
             </button>
-            <button onClick={onAprovar} disabled={ocupado} className="toque flex-1 rounded-full bg-black py-3.5 text-[16px] font-semibold text-white disabled:opacity-60">
-              {ocupado ? "Aprovando…" : "Aprovar ↗"}
+            <button onClick={onAprovar} disabled={ocupado} className="toque btn-solido grupo inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-black py-3.5 text-[16px] font-semibold text-white disabled:opacity-60">
+              {ocupado ? "Aprovando…" : <>Aprovar <SetaDiagonal /></>}
             </button>
           </div>
         )}

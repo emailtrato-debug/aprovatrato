@@ -45,3 +45,11 @@ export type ClienteResumo = {
   nome: string;
   logo: string;
 };
+
+/** Próxima reunião com o cliente, pronta para a tela (vem da agenda do Google da Trato). */
+export type ReuniaoResumo = {
+  /** "hoje às 14h", "amanhã às 10h30", "quinta, 20/11 às 14h" */
+  quando: string;
+  /** Link da chamada (Google Meet), se o evento tiver. */
+  link: string | null;
+};

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Portal } from "@/components/Portal";
 import { clientePorSlug, iconeDe } from "@/lib/clients";
 import { mesAtual, mesValido, mesVizinho, nomeMes } from "@/lib/datas";
+import { proximaReuniao } from "@/lib/agenda";
 import { carregarMes } from "@/lib/posts";
 
 export const dynamic = "force-dynamic";
@@ -32,7 +33,8 @@ export default async function PaginaCliente({
 
   const { mes: mesParam } = await searchParams;
   const mes = mesValido(mesParam) ? mesParam : mesAtual();
-  const dados = await carregarMes(cliente, mes);
+  // A reunião vem de outra fonte (agenda do Google) e nunca derruba o portal: se falhar, o bloco só some.
+  const [dados, reuniao] = await Promise.all([carregarMes(cliente, mes), proximaReuniao(cliente)]);
 
   return (
     <Portal
@@ -45,6 +47,7 @@ export default async function PaginaCliente({
       hrefProximo={`?mes=${mesVizinho(mes, 1)}`}
       posts={dados.posts}
       noAr={dados.noAr}
+      reuniao={reuniao}
     />
   );
 }

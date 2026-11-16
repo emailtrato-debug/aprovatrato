@@ -53,19 +53,26 @@ async function validar(slug: string, taskId: string, permitidos: EstadoPost[]) {
   const estado = base ? estadoParaCliente(base, arteEm, ajusteEm) : null;
   if (!estado) throw new ErroAmigavel("Post não encontrado.");
   if (!permitidos.includes(estado)) {
-    const nome = estado === "aprovado" ? "já foi aprovado" : estado === "ajuste" ? "já está em ajuste" : "não está mais aguardando sua resposta";
+    const nome =
+      estado === "aprovado" ? "já foi aprovado"
+      : estado === "ajuste" ? "já está em ajuste"
+      : estado === "aguardando" ? "já está aguardando sua aprovação"
+      : "não está mais aguardando sua resposta";
     throw new ErroAmigavel(`Este post ${nome}. Atualize a página para ver a situação atual.`);
   }
-  return { cliente, task, comentarios };
+  return { cliente, task, comentarios, estado };
 }
 
 /** Garante que o nome do status existe na lista antes de mudar. Devolve o nome exato do ClickUp. */
-async function nomeDoStatus(cliente: Cliente, task: CuTaskResumo, destino: "aprovado" | "ajuste"): Promise<string> {
+const STATUS_APROVACAO = "em aprovação (cliente)";
+
+async function nomeDoStatus(cliente: Cliente, task: CuTaskResumo, destino: "aprovado" | "ajuste" | typeof STATUS_APROVACAO): Promise<string> {
   const nomes = await statusDaLista(cliente.listaId);
   const achado = nomes.find((n) => n.trim().toLowerCase() === destino);
   if (!achado) {
     await registrar({
-      cliente: cliente.nome, postId: task.id, postTitulo: task.name, acao: destino === "aprovado" ? "aprovar" : "pedir-ajuste",
+      cliente: cliente.nome, postId: task.id, postTitulo: task.name,
+      acao: destino === "aprovado" ? "aprovar" : destino === "ajuste" ? "pedir-ajuste" : "voltar-aprovacao",
       resultado: "erro", detalhe: `status "${destino.toUpperCase()}" não existe na lista ${cliente.listaId}`,
     });
     throw new ErroAmigavel(`Não encontramos o passo "${destino.toUpperCase()}" no fluxo deste post. A equipe da Trato já foi avisada.`);
@@ -137,7 +144,8 @@ export async function pedirAjuste(slug: string, taskId: string, tipos: string[],
     if (escolhidos.length === 0) throw new ErroAmigavel("Marque o que precisa mudar: arte, legenda ou data.");
     if (!comentario) throw new ErroAmigavel("Escreva o que precisa mudar. O comentário é obrigatório.");
 
-    const { cliente, task, comentarios } = await validar(slug, taskId, ["aguardando"]);
+    // Também vale depois de aprovar: o cliente pode mudar de ideia e pedir ajuste.
+    const { cliente, task, comentarios } = await validar(slug, taskId, ["aguardando", "aprovado"]);
     const status = await nomeDoStatus(cliente, task, "ajuste"); // valida ANTES de escrever qualquer coisa
 
     const cabecalho = `Comentário do cliente via portal · Ajuste em: ${escolhidos.join(", ")}`;
@@ -164,6 +172,32 @@ export async function pedirAjuste(slug: string, taskId: string, tipos: string[],
       tiposAjuste: escolhidos, resultado: "ok", detalhe,
     });
     return { ok: true, estado: "ajuste", mensagem: novaMensagem(criado.id, cliente, comentario) };
+  });
+}
+
+/**
+ * Voltar atrás: desfaz uma aprovação (ou cancela um pedido de ajuste) e devolve o post para
+ * "EM APROVAÇÃO (CLIENTE)" no ClickUp. O comentário vem ANTES da troca de status: é ele que faz o
+ * pedido de ajuste anterior deixar de valer na tela (PREFIXO_VOLTOU em posts.ts reconhece este cabeçalho).
+ */
+export async function voltarParaAprovacao(slug: string, taskId: string): Promise<Resultado> {
+  const base = { cliente: clientePorSlug(slug)?.nome ?? slug, postId: taskId, acao: "voltar-aprovacao" as const };
+  return executar(base, async () => {
+    const { cliente, task, estado } = await validar(slug, taskId, ["aprovado", "ajuste"]);
+    const status = await nomeDoStatus(cliente, task, STATUS_APROVACAO); // valida ANTES de escrever qualquer coisa
+
+    const texto = estado === "aprovado"
+      ? "O cliente desfez a aprovação e voltou o post para aprovação."
+      : "O cliente cancelou o pedido de ajuste e voltou o post para aprovação.";
+    const atuais = (task.assignees ?? []).map((x) => x.id).filter((id) => Number.isFinite(id));
+    const criado = await criarComentario(task.id, "Comentário do cliente via portal · Voltou atrás", texto, atuais);
+    await atualizarStatus(task.id, status);
+    atualizarCache(cliente, task.id);
+    await registrar({
+      cliente: cliente.nome, postId: task.id, postTitulo: task.name, acao: "voltar-aprovacao", resultado: "ok",
+      detalhe: estado === "aprovado" ? "aprovação desfeita" : "pedido de ajuste cancelado",
+    });
+    return { ok: true, estado: "aguardando", mensagem: novaMensagem(criado.id, cliente, texto) };
   });
 }
 

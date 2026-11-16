@@ -60,7 +60,7 @@ export function AdminClientes({ clientes }: { clientes: Item[] }) {
         <div className="flex items-center gap-4">
           <p className="rotulo">Administração</p>
           <form action={sair}>
-            <button className="toque rotulo !text-ink">Sair</button>
+            <button className="toque rotulo !text-ink transition-colors duration-200 hover:!text-brand">Sair</button>
           </form>
         </div>
       </header>
@@ -82,10 +82,10 @@ export function AdminClientes({ clientes }: { clientes: Item[] }) {
                 <p className="mt-0.5 truncate text-[13px] text-mute">{c.url.replace(/^https?:\/\//, "")}</p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <button onClick={() => verPosts(c)} className="toque rounded-full border border-ink/70 px-4 text-[14px]">
+                <button onClick={() => verPosts(c)} className="toque btn-contorno rounded-full border border-ink/70 px-4 text-[14px]">
                   {aberto === c.slug ? "Fechar posts" : "Links por post"}
                 </button>
-                <button onClick={() => copiar(c)} className="toque rounded-full border border-ink/70 px-4 text-[14px]">
+                <button onClick={() => copiar(c)} className="toque btn-contorno rounded-full border border-ink/70 px-4 text-[14px]">
                   {copiado === c.nome ? "Copiado" : "Copiar link"}
                 </button>
                 <a
@@ -114,7 +114,7 @@ export function AdminClientes({ clientes }: { clientes: Item[] }) {
                             {[p.formato, p.estado === "aguardando" ? "Aguardando" : p.estado === "aprovado" ? "Aprovado" : "Em ajuste"].filter(Boolean).join(" · ")}
                           </span>
                         </span>
-                        <button onClick={() => copiarPost(c, p)} className="toque shrink-0 rounded-full border border-ink/70 bg-white px-3.5 text-[13px]">
+                        <button onClick={() => copiarPost(c, p)} className="toque btn-contorno shrink-0 rounded-full border border-ink/70 bg-white px-3.5 text-[13px]">
                           {copiado === p.id ? "Copiado" : "Copiar link"}
                         </button>
                       </li>

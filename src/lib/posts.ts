@@ -23,6 +23,8 @@ const MARCADOR_ARTE = "#arte";
 const MARCADOR_REEL = "#reels?"; // #reel (ou #reels): vídeo + capa de um Reels
 const MARCADOR_EQUIPE = "#cliente";
 const PREFIXO_CLIENTE = "comentário do cliente via portal";
+/** Comentário que o portal grava quando o cliente cancela um pedido de ajuste ou desfaz uma aprovação. */
+export const PREFIXO_VOLTOU = `${PREFIXO_CLIENTE} · voltou atrás`;
 const MAX_NO_AR = 9;
 
 const FORMATOS: Record<string, string> = {
@@ -125,7 +127,10 @@ function interpretarComentarios(comentarios: CuComentario[], nomeCliente: string
   const arteEm = arte ? Number(arte.date) : null;
   // Último pedido de ajuste feito pelo cliente no portal (para saber se a arte ficou velha).
   const ultimoAjuste = [...asc].reverse().find((c) => c.comment_text.trim().toLowerCase().startsWith(`${PREFIXO_CLIENTE} · ajuste`));
-  const ajusteEm = ultimoAjuste ? Number(ultimoAjuste.date) : null;
+  let ajusteEm = ultimoAjuste ? Number(ultimoAjuste.date) : null;
+  // Se depois do pedido de ajuste o cliente voltou atrás, o pedido deixa de valer.
+  const ultimaVolta = [...asc].reverse().find((c) => c.comment_text.trim().toLowerCase().startsWith(PREFIXO_VOLTOU));
+  if (ajusteEm && ultimaVolta && Number(ultimaVolta.date) > ajusteEm) ajusteEm = null;
 
   // Conversa: só o que a equipe marcou com #cliente e o que veio do próprio portal.
   const conversa: Mensagem[] = [];

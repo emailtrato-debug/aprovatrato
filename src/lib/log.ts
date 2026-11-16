@@ -9,7 +9,7 @@ export type EventoLog = {
   cliente: string;
   postId: string;
   postTitulo?: string;
-  acao: "aprovar" | "aprovar-pendentes" | "pedir-ajuste" | "comentar" | "bloqueado";
+  acao: "aprovar" | "aprovar-pendentes" | "pedir-ajuste" | "voltar-aprovacao" | "comentar" | "bloqueado";
   tiposAjuste?: string[];
   resultado: "ok" | "erro";
   detalhe?: string;

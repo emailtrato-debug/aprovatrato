@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { aprovarPendentes, aprovarPost, comentarPost, pedirAjuste, type Resultado } from "@/app/c/[slug]/acoes";
+import { aprovarPendentes, aprovarPost, comentarPost, pedirAjuste, voltarParaAprovacao, type Resultado } from "@/app/c/[slug]/acoes";
 import { diaMes } from "@/lib/datas";
-import type { ClienteResumo, EstadoPost, Mensagem, Post } from "@/lib/types";
+import type { ClienteResumo, EstadoPost, Mensagem, Post, ReuniaoResumo } from "@/lib/types";
 import { AjusteSheet, ConfirmaAprovacao } from "./AjusteSheet";
 import { InstalarApp } from "./InstalarApp";
 import { PostDetalhe } from "./PostDetalhe";
-import { COR_PONTO, corVazia, LogoCirculo, Selo, Seta, textoSobre, TituloDuplo } from "./ui";
+import { COR_PONTO, corVazia, IconeCalendario, LogoCirculo, Selo, Seta, SetaDiagonal, textoSobre, TituloDuplo } from "./ui";
 
 type Filtro = "todos" | EstadoPost;
 
@@ -28,20 +28,25 @@ type Props = {
   posts: Post[];
   noAr: Post[];
   aviso?: string;
+  /** Próxima reunião com o cliente (agenda da Trato). Ausente = o bloco não aparece. */
+  reuniao?: ReuniaoResumo | null;
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
 /* ----------------------------- peças pequenas ----------------------------- */
 
+/** Imagem que cresce devagar quando o pai (classe "group") recebe o mouse. */
+const EFEITO_ZOOM = "transition-transform duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]";
+
 function Capa({ post, cor, className = "" }: { post: Post; cor: string; className?: string }) {
   const m = post.midias[0];
   if (!m) return <div className={className} style={{ background: cor }} />;
   if (m.tipo === "video" && !m.miniatura) {
-    return <video src={m.url} muted playsInline preload="metadata" className={`object-cover ${className}`} />;
+    return <video src={m.url} muted playsInline preload="metadata" className={`object-cover ${EFEITO_ZOOM} ${className}`} />;
   }
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={m.miniatura ?? m.url} alt="" loading="lazy" className={`object-cover ${className}`} />;
+  return <img src={m.miniatura ?? m.url} alt="" loading="lazy" className={`object-cover ${EFEITO_ZOOM} ${className}`} />;
 }
 
 function Contador({ n, rotulo, destaque }: { n: number; rotulo: string; destaque?: boolean }) {
@@ -56,14 +61,14 @@ function Contador({ n, rotulo, destaque }: { n: number; rotulo: string; destaque
 function Mes({ nomeMes, ano, hrefAnterior, hrefProximo }: Pick<Props, "nomeMes" | "ano" | "hrefAnterior" | "hrefProximo">) {
   return (
     <div className="flex items-center">
-      <Link href={hrefAnterior} aria-label="Mês anterior" className="toque flex items-center justify-center" scroll={false}>
-        <Seta dir="esq" />
+      <Link href={hrefAnterior} aria-label="Mês anterior" className="toque group flex items-center justify-center transition-colors duration-200 hover:text-brand" scroll={false}>
+        <Seta dir="esq" className="transition-transform duration-300 group-hover:-translate-x-1" />
       </Link>
       <span className="rotulo px-1 !text-ink">
         {nomeMes} {ano}
       </span>
-      <Link href={hrefProximo} aria-label="Próximo mês" className="toque flex items-center justify-center" scroll={false}>
-        <Seta dir="dir" />
+      <Link href={hrefProximo} aria-label="Próximo mês" className="toque group flex items-center justify-center transition-colors duration-200 hover:text-brand" scroll={false}>
+        <Seta dir="dir" className="transition-transform duration-300 group-hover:translate-x-1" />
       </Link>
     </div>
   );
@@ -83,7 +88,7 @@ function Filtros({ filtro, onFiltro, contagem }: { filtro: Filtro; onFiltro: (f:
           key={id}
           onClick={() => onFiltro(id)}
           aria-pressed={filtro === id}
-          className={`toque rotulo shrink-0 px-3 !text-[11px] ${filtro === id ? "!text-brand" : "!text-mute"}`}
+          className={`toque rotulo shrink-0 px-3 !text-[11px] transition-colors duration-200 hover:!text-brand ${filtro === id ? "!text-brand" : "!text-mute"}`}
         >
           {nome} {contagem[id]}
         </button>
@@ -99,7 +104,7 @@ function Tile({ post, indice, onAbrir, esmaecido = false }: { post: Post; indice
     <button
       onClick={onAbrir}
       aria-label={`${post.titulo}, ${post.estado}`}
-      className={`relative block aspect-[4/5] w-full overflow-hidden bg-soft text-left ${semArte ? textoSobre(cor) : "text-white"}`}
+      className={`group relative block aspect-[4/5] w-full overflow-hidden bg-soft text-left ${semArte ? textoSobre(cor) : "text-white"}`}
     >
       <div className={`absolute inset-0 ${esmaecido ? "opacity-55" : ""}`}>
         <Capa post={post} cor={cor} className="h-full w-full" />
@@ -120,8 +125,15 @@ function Tile({ post, indice, onAbrir, esmaecido = false }: { post: Post; indice
           {diaMes(post.dataPublicacao)}
         </span>
       </span>
+      {!semArte && (
+        // Só com mouse: ao passar por cima, sobe o título e o tipo do post.
+        <span className="pointer-events-none absolute inset-x-0 bottom-0 hidden translate-y-2 bg-gradient-to-t from-ink/85 via-ink/40 to-transparent p-3 pt-10 opacity-0 transition duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 md:block md:p-4 md:pt-14">
+          <span className="block text-[10px] uppercase tracking-[0.14em] opacity-80">{[post.editoria, post.formato].filter(Boolean).join(" · ")}</span>
+          <span className="mt-1 block text-[15px] font-semibold uppercase leading-[1.1]">{post.titulo}</span>
+        </span>
+      )}
       {post.midias[0]?.tipo === "video" && (
-        <span className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-ink/70 text-[11px] text-white md:bottom-3 md:right-3 md:h-8 md:w-8" aria-hidden>
+        <span className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-ink/70 text-[11px] text-white transition-colors duration-300 group-hover:bg-brand md:bottom-3 md:right-3 md:h-8 md:w-8" aria-hidden>
           ▶
         </span>
       )}
@@ -138,7 +150,7 @@ function Miniatura({ post, indice, className }: { post: Post; indice: number; cl
 
 /* --------------------------------- principal -------------------------------- */
 
-export function Portal({ slug, demo = false, unico = false, cliente, mes, nomeMes, ano, hrefAnterior, hrefProximo, posts: postsServidor, noAr, aviso }: Props) {
+export function Portal({ slug, demo = false, unico = false, cliente, mes, nomeMes, ano, hrefAnterior, hrefProximo, posts: postsServidor, noAr, aviso, reuniao }: Props) {
   const router = useRouter();
   const [posts, setPosts] = useState(postsServidor);
   const [filtro, setFiltro] = useState<Filtro>("todos");
@@ -226,6 +238,15 @@ export function Portal({ slug, demo = false, unico = false, cliente, mes, nomeMe
     sincronizar();
   };
 
+  const voltar = async (id: string) => {
+    const r = await comResultado(() => voltarParaAprovacao(slug, id));
+    if (!r.ok) return setMensagem(r.erro);
+    const nova = r.mensagem ?? mensagemLocal("O cliente voltou o post para aprovação.");
+    alterar(id, (p) => ({ ...p, estado: "aguardando", conversa: [...p.conversa, nova] }));
+    setMensagem("Pronto, o post voltou para aprovação.");
+    sincronizar();
+  };
+
   const comentar = async (id: string, texto: string): Promise<boolean> => {
     const r = await comResultado(() => comentarPost(slug, id, texto));
     if (!r.ok) {
@@ -276,6 +297,8 @@ export function Portal({ slug, demo = false, unico = false, cliente, mes, nomeMe
             setErroModal(null);
             setAjusteDe(p.id);
           }}
+          onVoltar={() => voltar(p.id)}
+          caminhoLink={demo ? null : `/c/${slug}/p/${p.id}`}
           onComentar={(texto) => comentar(p.id, texto)}
           onAviso={setMensagem}
           ocupado={ocupado}
@@ -284,7 +307,7 @@ export function Portal({ slug, demo = false, unico = false, cliente, mes, nomeMe
           <AjusteSheet post={postDoAjuste} ocupado={ocupado} erro={erroModal} onEnviar={enviarAjuste} onCancelar={() => setAjusteDe(null)} />
         )}
         {mensagem && (
-          <div role="status" className="fixed inset-x-4 bottom-24 z-[80] mx-auto max-w-md rounded-2xl bg-ink px-5 py-3.5 text-center text-[15px] text-white shadow-lg md:bottom-6">
+          <div role="status" className="aviso-entra fixed inset-x-4 bottom-24 z-[80] mx-auto max-w-md rounded-2xl bg-ink px-5 py-3.5 text-center text-[15px] text-white shadow-lg md:bottom-6">
             {mensagem}
           </div>
         )}
@@ -298,9 +321,9 @@ export function Portal({ slug, demo = false, unico = false, cliente, mes, nomeMe
         setErroModal(null);
         setConfirmando(true);
       }}
-      className="toque w-full whitespace-nowrap rounded-full bg-black px-6 py-3 text-[15px] font-semibold text-white md:w-auto"
+      className="toque btn-solido grupo inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-black px-6 py-3 text-[15px] font-semibold text-white md:w-auto"
     >
-      {pendentes === 1 ? "Aprovar o 1 pendente" : `Aprovar os ${pendentes} pendentes`} ↗
+      {pendentes === 1 ? "Aprovar o 1 pendente" : `Aprovar os ${pendentes} pendentes`} <SetaDiagonal />
     </button>
   );
 
@@ -346,6 +369,29 @@ export function Portal({ slug, demo = false, unico = false, cliente, mes, nomeMe
         </div>
       </section>
 
+      {reuniao && (
+        <section aria-label="Próxima reunião" className="px-4 pb-4 md:px-9 md:pb-6">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl bg-soft px-4 py-3.5 md:inline-flex md:rounded-full md:px-6">
+            <span className="flex items-center gap-2.5 text-[15px]">
+              <IconeCalendario className="shrink-0 text-brand" />
+              <span>
+                Nossa próxima reunião é <strong className="font-semibold">{reuniao.quando}</strong>
+              </span>
+            </span>
+            {reuniao.link && (
+              <a
+                href={reuniao.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="grupo inline-flex items-center gap-1.5 text-[14px] font-semibold text-brand transition-colors duration-200 hover:text-ink"
+              >
+                Entrar na chamada <SetaDiagonal />
+              </a>
+            )}
+          </div>
+        </section>
+      )}
+
       <div className="border-y border-line px-4 md:hidden">
         <Filtros filtro={filtro} onFiltro={setFiltro} contagem={contagem} />
       </div>
@@ -358,7 +404,7 @@ export function Portal({ slug, demo = false, unico = false, cliente, mes, nomeMe
           <ul className="sem-barra -mx-4 mt-3 flex gap-2.5 overflow-x-auto px-4 pb-1">
             {calendario.map((p, i) => (
               <li key={p.id} className="w-[68px] shrink-0">
-                <button onClick={() => setAberto(p.id)} className="block w-full text-left">
+                <button onClick={() => setAberto(p.id)} className="group block w-full text-left transition-transform duration-200 active:scale-95">
                   <span className="relative block aspect-square overflow-hidden rounded-xl bg-soft">
                     <Miniatura post={p} indice={i} className="h-full w-full" />
                     <span className="absolute right-1.5 top-1.5 h-3 w-3 rounded-[4px] border-2 border-white" style={{ background: COR_PONTO[p.estado] }} />
@@ -381,13 +427,13 @@ export function Portal({ slug, demo = false, unico = false, cliente, mes, nomeMe
               <ul className="mt-4 space-y-3">
                 {calendario.map((p, i) => (
                   <li key={p.id}>
-                    <button onClick={() => setAberto(p.id)} className="flex w-full items-center gap-3 text-left">
+                    <button onClick={() => setAberto(p.id)} className="group flex w-full items-center gap-3 text-left transition-transform duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:translate-x-1">
                       <span className="w-5 text-[12px] text-mute">{p.numero ? pad(p.numero) : ""}</span>
                       <span className="block h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-soft">
                         <Miniatura post={p} indice={i} className="h-full w-full" />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[14px] font-semibold">{p.editoria ?? p.formato ?? "Post"}</span>
+                        <span className="block truncate text-[14px] font-semibold transition-colors duration-300 group-hover:text-brand">{p.editoria ?? p.formato ?? "Post"}</span>
                         <span className="block truncate text-[12px] text-mute">
                           {diaMes(p.dataPublicacao)}
                           {p.formato && ` · ${p.formato}`}
@@ -442,6 +488,8 @@ export function Portal({ slug, demo = false, unico = false, cliente, mes, nomeMe
             setErroModal(null);
             setAjusteDe(postAberto.id);
           }}
+          onVoltar={() => voltar(postAberto.id)}
+          caminhoLink={demo ? null : `/c/${slug}/p/${postAberto.id}`}
           onComentar={(texto) => comentar(postAberto.id, texto)}
           onAviso={setMensagem}
           ocupado={ocupado}
@@ -456,7 +504,7 @@ export function Portal({ slug, demo = false, unico = false, cliente, mes, nomeMe
       )}
 
       {mensagem && (
-        <div role="status" className="fixed inset-x-4 bottom-6 z-[80] mx-auto max-w-md rounded-2xl bg-ink px-5 py-3.5 text-center text-[15px] text-white shadow-lg">
+        <div role="status" className="aviso-entra fixed inset-x-4 bottom-6 z-[80] mx-auto max-w-md rounded-2xl bg-ink px-5 py-3.5 text-center text-[15px] text-white shadow-lg">
           {mensagem}
         </div>
       )}

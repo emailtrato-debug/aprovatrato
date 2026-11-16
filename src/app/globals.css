@@ -53,3 +53,85 @@ body {
 .sem-barra::-webkit-scrollbar {
   display: none;
 }
+
+/* ------------------------------------------------------------------------------------------------
+   Interações (mesma linguagem do trato.cc): botão que vira azul e sobe 1px, imagem com zoom lento,
+   setas que deslizam, seta ↗ que "sai e volta". Hover só em quem tem mouse; movimento reduzido respeitado.
+   ------------------------------------------------------------------------------------------------ */
+:root {
+  --ease-suave: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-seta: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Botão cheio (preto) e botão de contorno */
+.btn-solido,
+.btn-contorno {
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.2s, opacity 0.2s;
+}
+.btn-solido:not(:disabled):active,
+.btn-contorno:not(:disabled):active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* Seta diagonal ↗: no hover ela sai pelo canto e volta pelo lado oposto */
+.arr {
+  display: inline-block;
+  flex: none;
+  width: 1em;
+  height: 1em;
+  overflow: hidden;
+  clip-path: inset(0);
+  line-height: 0;
+  vertical-align: -0.12em;
+}
+.arr svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+@keyframes arr-go {
+  0% { transform: translate(0); }
+  45% { transform: translate(1em, -1em); }
+  46% { transform: translate(-1em, 1em); }
+  100% { transform: translate(0); }
+}
+
+/* Entradas */
+@keyframes entra-fundo { from { opacity: 0; } to { opacity: 1; } }
+@keyframes entra-painel { from { opacity: 0; transform: translateY(10px) scale(0.985); } to { opacity: 1; transform: none; } }
+@keyframes entra-gaveta { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes entra-aviso { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.fundo-entra { animation: entra-fundo 0.22s ease-out both; }
+.painel-entra { animation: entra-painel 0.32s var(--ease-suave) both; }
+.aviso-entra { animation: entra-aviso 0.28s var(--ease-suave) both; }
+.gaveta-entra { animation: entra-gaveta 0.34s var(--ease-suave) both; }
+@media (min-width: 768px) {
+  .gaveta-entra { animation: entra-painel 0.32s var(--ease-suave) both; }
+}
+
+@media (hover: hover) {
+  .btn-solido:not(:disabled):hover {
+    background-color: var(--color-brand);
+    transform: translateY(-1px);
+  }
+  .btn-contorno:not(:disabled):hover {
+    background-color: var(--color-brand);
+    border-color: var(--color-brand);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+  .grupo:not(:disabled):hover .arr svg {
+    animation: arr-go 0.55s var(--ease-seta) 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

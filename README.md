@@ -40,9 +40,15 @@ Regras que valem sempre:
 
 O que o cliente faz no portal e o que acontece no ClickUp:
 - **Aprovar**: status vai para APROVADO.
+- **Voltar atrás**: num post APROVADO, o cliente pode "Voltar para aprovação" (status volta para EM APROVAÇÃO (CLIENTE)) ou "Pedir ajuste". Num post em AJUSTE, "Cancelar pedido de ajuste" também volta para EM APROVAÇÃO (CLIENTE). Entra na task um comentário `Comentário do cliente via portal · Voltou atrás` marcando os responsáveis, e é esse comentário que faz o pedido de ajuste anterior deixar de valer na tela. Post já NO AR (PUBLICADO/FINALIZADO) não pode mais ser mudado pelo cliente.
+- **Copiar link do post**: botão no próprio post (cliente e equipe), copia `/c/<cliente>/p/<id>`.
 - **Pedir ajuste**: o cliente marca Arte, Legenda e/ou Data e escreve o comentário (obrigatório). O comentário entra na task como `Comentário do cliente via portal · Ajuste em: Arte, Legenda` seguido do texto, e o status vai para AJUSTE.
 - **Comentar**: entra na task como `Comentário do cliente via portal`, sem mudar o status.
 - **Aprovar os X pendentes**: aprova, depois de confirmação, tudo que está em EM APROVAÇÃO (CLIENTE) naquele mês.
+
+### Próxima reunião (Google Agenda)
+
+O portal mostra "Nossa próxima reunião é..." lendo a agenda da Trato pelo endereço secreto iCal, guardado na variável `AGENDA_ICS_URL` (Google Agenda › Configurações da agenda › Integrar agenda › "Endereço secreto no formato iCal"). Regra de título para a agenda: **só entra no portal o evento cujo título começa com "Reunião" e cita o nome do cliente**, como `Reunião | AABB` ou `Reunião AABB - alinhamento de novembro`. Reuniões internas, de outros clientes ou sem o padrão são ignoradas. Funciona com eventos que se repetem e com remarcações. Só título, horário e link do Meet saem da agenda: descrição e convidados nunca chegam ao cliente. A agenda é relida a cada 5 minutos. Sem `AGENDA_ICS_URL` (ou se o Google falhar), o bloco simplesmente não aparece.
 
 Antes de mudar qualquer status, o servidor confere se o nome existe na lista. Se não existir, o cliente vê uma mensagem amigável e o erro vai para o log.
 
@@ -182,7 +188,7 @@ O código fica no GitHub e a Cloudflare publica a cada push na branch `main`, us
 
 1. Criar os dois KV (cache): `npx wrangler kv namespace create NEXT_INC_CACHE_KV` e `npx wrangler kv namespace create NEXT_TAG_CACHE_KV`; cole os ids em `wrangler.jsonc`.
 2. Cloudflare › Workers & Pages › Create › Import a repository (GitHub). Build command: `npx opennextjs-cloudflare build`; deploy command: `npx opennextjs-cloudflare deploy`.
-3. Variáveis (Settings › Variables and Secrets, como Secret): `CLICKUP_API_TOKEN`, `ADMIN_CHAVE`, `ADMIN_SENHA`, `CLICKUP_WEBHOOK_SECRET` (e as do Upstash, se usar).
+3. Variáveis (Settings › Variables and Secrets, como Secret, uma por vez): `CLICKUP_API_TOKEN`, `ADMIN_CHAVE`, `ADMIN_SENHA`, `CLICKUP_WEBHOOK_SECRET`, `AGENDA_ICS_URL` (opcional, a agenda) e as do Upstash, se usar.
 4. Depois de ter o endereço novo, recrie o webhook: `npm run webhook -- criar <url>` e defina `PORTAL_URL`.
 
 Teste local do build da Cloudflare: `npm run preview`.

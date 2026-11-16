@@ -75,6 +75,34 @@ export function Seta({ dir, className = "" }: { dir: "esq" | "dir" | "fechar"; c
   );
 }
 
+/** ↗ que anima no hover do botão pai (o pai precisa da classe "grupo"). */
+export function SetaDiagonal() {
+  return (
+    <span className="arr" aria-hidden>
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4.5 11.5l7-7M5.5 4.5h6v6" />
+      </svg>
+    </span>
+  );
+}
+
+export function IconeLink({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M6.7 9.3a3 3 0 004.2 0l2-2a3 3 0 00-4.2-4.2l-.7.7M9.3 6.7a3 3 0 00-4.2 0l-2 2a3 3 0 004.2 4.2l.7-.7" />
+    </svg>
+  );
+}
+
+export function IconeCalendario({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <rect x="2" y="3" width="12" height="11" rx="2.5" />
+      <path d="M2 6.5h12M5.5 1.8v2.4M10.5 1.8v2.4" />
+    </svg>
+  );
+}
+
 export function rotuloTipo(p: Post): string {
   const partes: string[] = [];
   if (p.formato) {
