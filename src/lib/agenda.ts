@@ -6,25 +6,28 @@ import type { ReuniaoResumo } from "./types";
 // "Nossa próxima reunião é...": lê a agenda do Google da Trato pelo endereço secreto no formato iCal
 // (Google Agenda › Configurações da agenda › "Endereço secreto no formato iCal"), guardado em AGENDA_ICS_URL.
 //
-// Regra para a agenda: só entra no portal o evento cujo TÍTULO COMEÇA COM "Reunião" e cita o nome do
-// cliente (ex.: "Reunião | AABB", "Reunião AABB - alinhamento de novembro"). Qualquer outro evento é ignorado,
-// então reuniões internas ou de outros clientes nunca aparecem. Só título, horário e link da chamada saem daqui:
-// descrição, convidados e demais detalhes nunca chegam ao navegador.
+// Padrão de título da agenda: "Reunião | Trato x <Cliente>" (ex.: "Reunião | Trato x AABB").
+// Só entra no portal do cliente o evento com esse padrão E o nome do cliente depois do "x". Qualquer outro
+// título (reunião interna, de outro cliente, sem o padrão) é ignorado. A lógica não diferencia maiúsculas,
+// acentos nem "x"/"×", e aceita um complemento depois do nome ("Reunião | Trato x AABB | pauta de dezembro").
+// Só título, horário e link da chamada saem daqui: descrição, convidados e demais detalhes nunca chegam ao navegador.
 
 export type Reuniao = ReuniaoResumo;
 
-const TITULO_PADRAO = /^\s*reuni[aã]o\b/i;
 const FUSO = "America/Sao_Paulo";
 const JANELA_DIAS = 120;
 const MAX_OCORRENCIAS = 400;
+/** "Reunião | Trato x <resto>": o resto começa pelo nome do cliente. */
+const TITULO_PADRAO = /^\s*reuni[aã]o\s*[|\-–:]\s*trato\s*[x×]\s*(.+?)\s*$/i;
 
 const sem = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const escapar = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/** O título cita o cliente como palavra inteira (sem acento, sem diferença de maiúscula). */
+/** O título segue o padrão "Reunião | Trato x <Cliente>" e o cliente é este (o nome vem logo depois do "x"). */
 export function tituloDoCliente(titulo: string, cliente: Pick<Cliente, "nome">): boolean {
-  if (!TITULO_PADRAO.test(titulo)) return false;
-  return new RegExp(`(^|[^a-z0-9])${escapar(sem(cliente.nome))}($|[^a-z0-9])`).test(sem(titulo));
+  const m = titulo.match(TITULO_PADRAO);
+  if (!m) return false;
+  return new RegExp(`^${escapar(sem(cliente.nome))}($|[^a-z0-9])`).test(sem(m[1]));
 }
 
 const diaDe = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: FUSO }).format(d); // AAAA-MM-DD
