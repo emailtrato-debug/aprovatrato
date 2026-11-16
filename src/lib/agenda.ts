@@ -94,7 +94,7 @@ function proximaOcorrencia(componente: ICAL.Component, excecoes: ICAL.Component[
 }
 
 /** Lê o texto iCal e devolve a próxima reunião do cliente. Separado do download para poder ser testado. */
-export function proximaReuniaoNoIcs(texto: string, cliente: Pick<Cliente, "nome">, agora = new Date()): Reuniao | null {
+export function proximaReuniaoNoIcs(texto: string, cliente: Pick<Cliente, "nome">, agora = new Date()): (Reuniao & { inicio: number }) | null {
   const raiz = new ICAL.Component(ICAL.parse(texto));
   const eventos = raiz.getAllSubcomponents("vevent");
 
@@ -122,22 +122,34 @@ export function proximaReuniaoNoIcs(texto: string, cliente: Pick<Cliente, "nome"
       console.error("[agenda] evento ignorado:", erro instanceof Error ? erro.message : erro);
     }
   }
-  return melhor ? { quando: descreverQuando(melhor.inicio, melhor.diaInteiro, agora), link: melhor.link } : null;
+  return melhor
+    ? { quando: descreverQuando(melhor.inicio, melhor.diaInteiro, agora), link: melhor.link, inicio: melhor.inicio.getTime() }
+    : null;
 }
 
-/** Próxima reunião marcada com este cliente. Sem agenda configurada (ou com falha), devolve null e o portal segue normal. */
+/** Endereços iCal configurados: pode haver mais de uma agenda (uma por pessoa), separadas por espaço, vírgula ou quebra de linha. */
+function enderecosDaAgenda(): string[] {
+  return (process.env.AGENDA_ICS_URL ?? "")
+    .split(/[\s,]+/)
+    .filter(Boolean)
+    // https sempre; http só em localhost, para testar com um arquivo local durante o desenvolvimento.
+    .filter((u) => /^https:\/\//.test(u) || (process.env.NODE_ENV !== "production" && /^http:\/\/localhost[:/]/.test(u)));
+}
+
+/** Próxima reunião marcada com este cliente em qualquer das agendas. Sem agenda configurada (ou com falha), devolve null e o portal segue normal. */
 export async function proximaReuniao(cliente: Cliente): Promise<Reuniao | null> {
-  const url = process.env.AGENDA_ICS_URL;
-  if (!url) return null;
-  // https sempre; http só em localhost, para testar com um arquivo local durante o desenvolvimento.
-  const permitido = /^https:\/\//.test(url) || (process.env.NODE_ENV !== "production" && /^http:\/\/localhost[:/]/.test(url));
-  if (!permitido) return null;
-  try {
-    const res = await fetch(url, { next: { revalidate: 300 } });
-    if (!res.ok) throw new Error(`agenda respondeu ${res.status}`);
-    return proximaReuniaoNoIcs(await res.text(), cliente);
-  } catch (e) {
-    console.error("[agenda] falha ao ler a agenda:", e instanceof Error ? e.message : e);
-    return null;
-  }
+  const lidas = await Promise.all(
+    enderecosDaAgenda().map(async (url) => {
+      try {
+        const res = await fetch(url, { next: { revalidate: 300 } });
+        if (!res.ok) throw new Error(`agenda respondeu ${res.status}`);
+        return proximaReuniaoNoIcs(await res.text(), cliente);
+      } catch (e) {
+        console.error("[agenda] falha ao ler uma agenda:", e instanceof Error ? e.message : e);
+        return null;
+      }
+    }),
+  );
+  const primeira = lidas.filter((r) => r !== null).sort((a, b) => a.inicio - b.inicio)[0];
+  return primeira ? { quando: primeira.quando, link: primeira.link } : null;
 }
