@@ -23,6 +23,7 @@ export const CLIENTES: Cliente[] = [
   { slug: "montri-sc5wgn", nome: "Montri", listaId: "901327469268", logo: "/logos/montri.png" },
   { slug: "marplast-cksfxq", nome: "Marplast", listaId: "901327469284", logo: "/logos/marplast.png" },
   { slug: "conx-cst5i5", nome: "Conx", listaId: "901327469290", logo: "/logos/conx.png" },
+  { slug: "innovar-ba6rc7", nome: "Innovar", listaId: "1400480000014540", logo: "/logos/innovar.png" },
 ];
 
 /** Ícone do app (gerado a partir da logo por `npm run icones`): 180, 192 ou 512 px. */

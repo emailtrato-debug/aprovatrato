@@ -84,7 +84,7 @@ npm run clientes -- remover nome-ou-slug           # remove
 ```
 
 - A logo vai em `public/logos/` (quadrada, de preferência 480x480). Ela aparece dentro de um círculo.
-- O link é `https://aprovetrato.netlify.app/c/<nome>-<6 caracteres aleatórios>`. Para trocar o link de um cliente (se vazar), remova e cadastre de novo.
+- O link é `https://aprovetrato.emailtrato.workers.dev/c/<nome>-<6 caracteres aleatórios>`. Para trocar o link de um cliente (se vazar), remova e cadastre de novo.
 - Depois de cadastrar ou remover, faça um novo deploy.
 
 ## Conferir antes de liberar

@@ -7,7 +7,7 @@ import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 
 const ARQ = "src/lib/clients.ts";
-const BASE = process.env.PORTAL_URL || "https://aprovetrato.netlify.app";
+const BASE = process.env.PORTAL_URL || "https://aprovetrato.emailtrato.workers.dev";
 const TOKEN = process.env.CLICKUP_API_TOKEN;
 const ALFABETO = "abcdefghjkmnpqrstuvwxyz23456789"; // sem letras que se confundem (i, l, o, 0, 1)
 
